@@ -168,6 +168,37 @@ def logout_user(request):
 
 
 def login_user(request):
+    """
+        Authenticate a user and redirect them to the appropriate dashboard based on
+        their assigned role within the PlanetPress platform.
+    
+        This view supports both GET and POST requests:
+    
+        POST:
+            - Retrieves the submitted username and password.
+            - Authenticates the user using Django's `authenticate()` function.
+            - If authentication fails, re-renders the login page with an error message.
+            - If authentication succeeds:
+                * Logs the user in using Django's `login()` function.
+                * Retrieves the user's associated UserProfile.
+                * Applies role-based redirection logic:
+                    - Readers with no selected categories are redirected to the
+                      preference selection page.
+                    - Readers with preferences are redirected to the reader dashboard.
+                    - Independent journalists are redirected to the journalist dashboard.
+                    - Publishers are redirected to the publisher dashboard.
+                    - Editors are redirected to the editor dashboard.
+    
+        GET:
+            - Renders the login page.
+    
+        Returns:
+            HttpResponse:
+                - On GET: the login form.
+                - On failed POST: the login form with an error message.
+                - On successful POST: a redirect to the appropriate dashboard or
+                  preference selection page.
+    """
 
     if request.method == "POST":
         username = request.POST.get("username")
