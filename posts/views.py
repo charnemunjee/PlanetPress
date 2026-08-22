@@ -28,7 +28,12 @@ from django.db.models import Q
 # Create your views here.
 
 def welcome(request):
-
+    """
+        Renders the welcome page for the MarketSpark platform.
+    
+        Returns:
+            HttpResponse: The welcome template.
+        """
     return render(request, 'welcome.html')
 
     
