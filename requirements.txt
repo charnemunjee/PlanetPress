@@ -12,3 +12,4 @@ sqlparse==0.5.5
 tweepy==4.16.0
 tzdata==2026.2
 urllib3==2.7.0
+gunicorn==22.0.0
