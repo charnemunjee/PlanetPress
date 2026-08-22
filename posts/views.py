@@ -251,6 +251,16 @@ def forgot_password(request):
 
 
 def generate_reset_url(request, user):
+    """
+        Generates a secure password reset URL for a user.
+    
+        Purpose:
+            Creates a hashed token, stores it with an expiry time, and constructs
+            an absolute reset URL.
+    
+        Returns:
+            str: The full password reset URL.
+    """
 
     token = str(secrets.token_urlsafe(16))
     hashed = sha1(token.encode()).hexdigest()
