@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+
+    <h2>Create Your Account</h2>
+
+    {% if error %}
+        <div class="alert alert-danger">{{ error }}</div>
+    {% endif %}
+
+    <form method="POST">
+        {% csrf_token %}
+
+        <div class="mb-3">
+            <label class="form-label">Username</label>
+            <input type="text" name="username" class="form-control" required>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Email</label>
+            <input type="email" name="email" class="form-control" required>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Password</label>
+            <input type="password" name="password" id="password" class="form-control" required>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Confirm Password</label>
+            <input type="password" name="confirm_password" id="confirm_password" class="form-control" required>
+        </div>
+
+        <div class="form-check mb-3">
+            <input class="form-check-input" type="checkbox" id="showPasswords">
+            <label class="form-check-label" for="showPasswords">
+                Show passwords
+            </label>
+        </div>
+
+        <script>
+            document.getElementById("showPasswords").addEventListener("change", function () {
+                const type = this.checked ? "text" : "password";
+                document.getElementById("password").type = type;
+                document.getElementById("confirm_password").type = type;
+            });
+        </script>
+
+        <!-- ROLE SELECTION -->
+        <div class="mb-3">
+            <label class="form-label">Select Your Role</label>
+
+            <div class="form-check">
+                <input class="form-check-input" type="radio" name="role" value="reader" required>
+                <label class="form-check-label">Reader</label>
+            </div>
+
+            <div class="form-check">
+                <input class="form-check-input" type="radio" name="role" value="independent">
+                <label class="form-check-label">Independent Journalist</label>
+            </div>
+
+            <div class="form-check">
+                <input class="form-check-input" type="radio" name="role" value="publisher">
+                <label class="form-check-label">Publisher</label>
+            </div>
+
+            <div class="form-check">
+                <input class="form-check-input" type="radio" name="role" value="journalist">
+                <label class="form-check-label">Journalist (Publisher Team)</label>
+            </div>
+
+            <div class="form-check">
+                <input class="form-check-input" type="radio" name="role" value="editor">
+                <label class="form-check-label">Editor (Publisher Team)</label>
+            </div>
+        </div>
+
+        <!-- PUBLISHER DROPDOWN (only for journalist/editor) -->
+        <div class="mb-3" id="publisherDropdownContainer" style="display:none;">
+            <label class="form-label">Select Publisher</label>
+            <select name="publisher_id" class="form-select">
+                <option value="">Choose a publisher</option>
+                {% for pub in publishers %}
+                    <option value="{{ pub.user.id }}">{{ pub.user.username }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <script>
+            const roleRadios = document.querySelectorAll("input[name='role']");
+            const publisherDropdown = document.getElementById("publisherDropdownContainer");
+
+            roleRadios.forEach(radio => {
+                radio.addEventListener("change", function() {
+                    if (this.value === "journalist" || this.value === "editor") {
+                        publisherDropdown.style.display = "block";
+                    } else {
+                        publisherDropdown.style.display = "none";
+                    }
+                });
+            });
+        </script>
+
+        <button type="submit" class="btn btn-primary">Create Account</button>
+    </form>
+    <button class="btn btn-success mt-3">
+        <a href="{% url 'login_user' %}" class="btn btn-secondary">
+            Back to Login
+        </a>
+</div>
+{% endblock %}

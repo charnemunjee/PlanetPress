@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+
+    <h2>All Articles</h2>
+    <p class="text-muted">Browse articles with review status indicators.</p>
+
+    {% if articles %}
+        <ul class="list-group mt-4">
+            {% for article in articles %}
+
+                    <h4>{{ article.title }}</h4>
+
+                    <p class="text-muted">
+                        By {{ article.author.username }} • {{ article.created_at|date:"F j, Y" }}
+                    </p>
+
+                    <!-- Review Status Badge -->
+                    {% if article.status == "approved" %}
+                        <span class="badge bg-success">Reviewed & Approved</span>
+
+                    {% elif article.status == "unapproved" %}
+                        <span class="badge bg-warning text-dark">Reviewed (Unapproved)</span>
+
+                    {% elif article.status == "submitted" %}
+                        <span class="badge bg-info text-dark">Pending Review</span>
+
+                    {% elif article.status == "draft" %}
+                        <span class="badge bg-secondary">Draft (Not Public)</span>
+                    {% endif %}
+
+                    <br><br>
+
+                    <button class="btn btn-primary btn-sm">
+                        <a href="{% url 'view_article' article.id %}" class="btn btn-primary btn-sm">
+                            Read Article
+                        </a>
+                    </button>
+
+                    {% if request.user.profile.role == "reader" %}
+                        {% with author=article.author profile=article.author.profile %}
+
+                            {% if profile.role == "publisher" %}
+                                {% if request.user in profile.publisher_subscribers.all %}
+                                    <button class="btn btn-success btn-sm">
+                                        <a href="{% url 'unfollow_user' profile.user.id %}" class="btn btn-danger btn-sm">
+                                            Unfollow Publisher
+                                        </a>
+                                    </button>
+                                {% else %}
+                                <button class="btn btn-success btn-sm">
+                                    <a href="{% url 'follow_user' profile.user.id %}" class="btn btn-success btn-sm">
+                                        Follow Publisher
+                                    </a>
+                                </button>
+                                {% endif %}
+                            {% endif %}
+
+                            {% if profile.role == "journalist" or profile.role == "independent" %}
+                                {% if request.user in profile.journalist_subscribers.all %}
+                                    <button class="btn btn-success btn-sm">    
+                                        <a href="{% url 'unfollow_user' profile.user.id %}" class="btn btn-danger btn-sm">
+                                            Unfollow Journalist
+                                        </a>
+                                    </button>
+                                {% else %}
+                                    <button class="btn btn-success btn-sm">
+                                        <a href="{% url 'follow_user' profile.user.id %}" class="btn btn-success btn-sm">
+                                            Follow Journalist
+                                        </a>
+                                    </button>
+                                {% endif %}
+                            {% endif %}
+
+                        {% endwith %}
+                    {% endif %}
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No articles available.</p>
+    {% endif %}
+        <button class="btn btn-success">
+            <a href="{% url 'reader_dashboard' %}" class="btn btn-secondary">
+                Back to Dashboard
+            </a>
+        </button>
+</div>
+{% endblock %}

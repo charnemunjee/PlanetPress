@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="article-container">
+    <h1>{{ article.title }}</h1>
+
+    <p class="text-muted">
+        By {{ article.author.username }} • {{ article.created_at|date:"F j, Y" }}
+    </p>
+
+    <p> {{article.status}}</p>
+    <hr>
+
+    <div class="article-content">
+        {{ article.content|linebreaks }}
+    </div>
+
+    <button class="btn btn-success"> 
+        <a href="{% url 'reader_all_articles' %}" class="btn btn-secondary mt-4">
+            Back to all articles
+        </a>
+    </button>
+</div>
+{% endblock %}

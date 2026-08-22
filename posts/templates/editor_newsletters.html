@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+
+    <h2>Created Newsletters</h2>
+
+    {% if newsletters %}
+        <ul class="list-group mt-3">
+            {% for newsletter in newsletters %}
+                <ul class="list-group-item">
+
+                    <h4>{{ newsletter.title }}</h4>
+
+                    <p class="text-muted">
+                        Created on {{ newsletter.created_at|date:"F j, Y" }}
+                    </p>
+                    <button class="btn btn-success mt-4">
+                        <a href="{% url 'view_newsletter' newsletter.id %}" class="btn btn-secondary btn-sm">
+                            View
+                        </a>
+                    </button>
+
+                    <button class="btn btn-success mt-4">
+                        <a href="{% url 'editors_edit_newsletter' newsletter.id %}" class="btn btn-secondary btn-sm">
+                            Edit
+                        </a>
+                    </button>
+
+                    <button class="btn btn-success mt-4">
+                        <a href="{% url 'delete_newsletter_editor' newsletter.id %}"
+                           class="btn btn-danger btn-sm"
+                           onclick="return confirm('Are you sure you want to delete this newsletter?');">
+                            Delete
+                        </a>
+                    </button>
+
+                </ul>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>There are no newsletters to display.</p>
+    {% endif %}
+    <button class="btn btn-success mt-4">
+        <a href="{% url 'editor_dashboard' %}" class="btn btn-secondary">
+            Back to Dashboard
+        </a>
+    </button>
+</div>
+{% endblock %}

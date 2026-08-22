@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% load static %}
+
+
+{% block content %}
+
+<div class="hero">
+    <h1 class="hero-title">Welcome to PlanetPress</h1>
+    <p class="hero-subtitle">
+        Your window to what matters
+    </p>
+
+    <button class=".btn-primary">
+        <a href="{% url 'login_user' %}" class="btn btn-primary cta-btn d-inline-block mx-auto">Get started!</a>
+    </button>
+    
+</div>
+{% endblock content %}
+

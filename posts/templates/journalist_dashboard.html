@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+
+    <h2>Journalist Dashboard</h2>
+    <p class="text-muted">Manage your articles.</p>
+
+    <!-- Submit New Article (saved as draft) -->
+    <button class="btn btn-success">
+        <a href="{% url 'submit_article' %}" class="btn btn-success mb-3">
+            Submit New Article (Save as Draft)
+        </a>
+    </button>
+    
+
+    <h4>Filter Articles</h4>
+
+    <form method="GET" class="row g-3 mb-4">
+
+        <div class="col-md-4">
+            <label class="form-label">Category</label>
+            <select name="category" class="form-select">
+                <option value="">All Categories</option>
+                {% for cat in categories %}
+                    <option value="{{ cat.id }}" {% if selected_category == cat.id|stringformat:"s" %}selected{% endif %}>
+                        {{ cat.name }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="col-md-4">
+            <label class="form-label">Status</label>
+            <select name="status" class="form-select">
+                <option value="">All Statuses</option>
+                {% for s in statuses %}
+                    <option value="{{ s }}" {% if selected_status == s %}selected{% endif %}>
+                        {{ s|title }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="col-md-4 d-flex align-items-end">
+            <button class="btn btn-primary w-100">Apply Filters</button>
+        </div>
+
+    </form>
+
+    <hr>
+
+    <h4>Your Articles</h4>
+
+    {% if articles %}
+        <ul class="list-group mt-3">
+            {% for article in articles %}
+                <ul class="list-group-item">
+
+                    <h4>{{ article.title }}</h4>
+
+                    <p class="text-muted">
+                        Status: <strong>{{ article.status|title }}</strong>
+                        • {{ article.created_at|date:"F j, Y" }}
+                        • {{ article.category.name }}
+                    </p>
+
+                    <!-- View full article -->
+                    <button class="btn btn-success">
+                        <a href="{% url 'view_article' article.id %}" class="btn btn-secondary btn-sm">
+                            View Article
+                        </a>
+                    </button>
+                    
+
+                    {% if article.status == "draft" %}
+                        <button class="btn btn-success">
+                            <a href="{% url 'edit_article' article.id %}" class="btn btn-primary btn-sm">
+                                Edit Draft
+                            </a>
+                        </button>
+                        
+                        <button class="btn btn-success">
+                            <a href="{% url 'delete_article' article.id %}" class="btn btn-danger btn-sm">
+                                Delete Draft
+                            </a>
+                        </button>
+                        
+
+                        <!-- NEW: Submit for Review -->
+                         <button class="btn btn-success">
+                            <a href="{% url 'submit_for_review' article.id %}" class="btn btn-warning btn-sm">
+                                Submit for Review
+                            </a>
+                         </button>
+                    {% endif %}
+
+                        </ul>
+            {% endfor %}
+        </ul>
+    {% endif %}
+    {% if not articles %}
+        <p>You have not submitted any articles yet.</p>
+    {% endif %}
+
+    <hr>
+
+    <h4>Your Newsletters</h4>
+    <button class="btn btn-success">
+        <a href="{% url 'create_newsletter' %}" class="btn btn-info mb-3">
+        Create Newsletter
+    </a>
+    </button>
+    
+    {% if newsletters %}
+        <ul class="list-group mt-3">
+            {% for newsletter in newsletters %}
+                <h5>{{ newsletter.title }}</h5>
+                <p class="text-muted">
+                    Created on {{ newsletter.created_at|date:"F j, Y" }}
+                </p>
+                <button class="btn btn-success">
+                    <a href="{% url 'view_newsletter' newsletter.id %}" class="btn btn-primary btn-sm">
+                        View
+                    </a>
+                </button>
+                    
+                <button class="btn btn-success">
+                    <a href="{% url 'journalist_edit_newsletter' newsletter.id %}" class="btn btn-secondary btn-sm">
+                        Edit
+                    </a>
+                </button>
+                    
+                <button class="btn btn-success">
+                    <a href="{% url 'delete_newsletter' newsletter.id %}" class="btn btn-danger btn-sm">
+                        Delete
+                    </a>
+                </button>
+            {% endfor %}
+        </ul>
+    {% else %}
+         <p>You have not created any newsletters yet.</p>
+    {% endif %}
+        
+    <button class="btn btn-success">
+        <a href="{% url 'logout_user' %}" class="btn btn-secondary">
+            log out
+        </a>
+    </button>
+</div>
+
+{% endblock %}

@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+
+    <h2>Your Submitted Articles</h2>
+    <p class="text-muted">All articles you have written and submitted for review.</p>
+
+    {% if articles %}
+        <ul class="list-group mt-4">
+            {% for article in articles %}
+                <ul class="list-group-item">
+
+                    <h4>{{ article.title }}</h4>
+
+                    <p class="text-muted">
+                        Status: 
+                        <strong>
+                            {{ article.status|title }}
+                        </strong>
+                        • Submitted on {{ article.created_at|date:"F j, Y" }}
+                    </p>
+                    <button class="btn btn-success mt-4">
+                        <a href="{% url 'reader_view_article' article.id %}" class="btn btn-secondary btn-sm">
+                            View Article
+                        </a>
+                    </button>
+
+                    {% if article.status == "submitted" %}
+                        <button class="btn btn-success mt-4">
+                            <a href="{% url 'edit_article' article.id %}" class="btn btn-primary btn-sm">
+                                Edit Article
+                            </a>
+                        </button>
+                    {% endif %}
+
+                </ul>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>You have not submitted any articles yet.</p>
+    {% endif %}
+</div>
+
+{% endblock %}

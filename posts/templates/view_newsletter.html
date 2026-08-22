@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+
+    <h2>{{ newsletter.title }}</h2>
+    <p class="text-muted">
+        Created by {{ newsletter.author.username }} • {{ newsletter.created_at|date:"F j, Y" }}
+    </p>
+
+    <p>{{ newsletter.description }}</p>
+
+    <hr>
+
+    <h4>Articles in this Newsletter</h4>
+
+    <ul class="list-group mt-3">
+        {% for article in newsletter.articles.all %}
+            <ul class="list-group-item">
+                <a href="{% url 'view_article' article.id %}">{{ article.title }}</a>
+            </ul>
+        {% endfor %}
+    </ul>
+    <button class="btn btn-success mt-4">
+        {% if user.profile.role == "publisher" %}
+            <a href="{% url 'publisher_dashboard' %}" class="btn btn-secondary">
+                Back to Dashboard
+            </a>
+        {% elif user.profile.role == "journalist" or user.profile.role == "independent" %}
+            <a href="{% url 'journalist_dashboard' %}" class="btn btn-secondary">
+                Back to Dashboard
+            </a>
+        {% elif user.profile.role == "editor" %}
+            <a href="{% url 'editor_dashboard' %}" class="btn btn-secondary">
+                Back to Dashboard
+            </a>
+        {% elif user.profile.role == "reader" %}
+            <a href="{% url 'reader_dashboard' %}" class="btn btn-secondary">
+                Back to Dashboard
+            </a>
+        {% endif %}
+    </button>
+</div>
+{% endblock %}

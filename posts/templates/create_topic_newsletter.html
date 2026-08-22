@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+
+    <h2>Create Topic-Based Newsletter</h2>
+
+    <form method="GET" class="mb-4">
+        <label class="form-label">Select Topic</label>
+        <select name="category" class="form-select" onchange="this.form.submit()">
+            <option value="">Choose a topic...</option>
+            {% for cat in categories %}
+                <option value="{{ cat.id }}" {% if selected_category == cat.id|stringformat:"s" %}selected{% endif %}>
+                    {{ cat.name }}
+                </option>
+            {% endfor %}
+        </select>
+    </form>
+
+    {% if articles %}
+    <form method="POST">
+        {% csrf_token %}
+
+        <div class="mb-3">
+            <label class="form-label">Newsletter Title</label>
+            <input type="text" name="title" class="form-control" required>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Description</label>
+            <textarea name="description" class="form-control" rows="4"></textarea>
+        </div>
+
+        <input type="hidden" name="category" value="{{ selected_category }}">
+
+        <div class="mb-3">
+            <label class="form-label">Select Articles for This Topic</label>
+            <select name="articles" class="form-select" multiple size="10">
+                {% for article in articles %}
+                    <option value="{{ article.id }}">
+                        {{ article.title }}
+                    </option>
+                {% endfor %}
+            </select>
+            <small class="text-muted">Hold CTRL (Windows) or CMD (Mac) to select multiple articles.</small>
+        </div>
+
+        <button class="btn btn-success">Create Newsletter</button>
+    </form>
+    {% endif %}
+    {% if user.profile.role == "journalist" %}
+    <button class="btn btn-success mt-4">
+        <a href="{% url 'journalist_dashboard' %}" class="btn btn-secondary">
+            Back to Dashboard
+        </a>
+    </button>
+        {% elif user.profile.role == "editor" %}
+
+    <button class="btn btn-success mt-4">
+        <a href="{% url 'editor_dashboard' %}" class="btn btn-secondary">         
+            Back to Dashboard
+        </a>
+    </button>
+    {% endif %}
+</div>
+{% endblock %}

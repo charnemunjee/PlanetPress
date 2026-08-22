@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+
+    <h2>Publisher Dashboard</h2>
+    <p class="text-muted">Manage your newsroom, team, and articles.</p>
+
+    <hr>
+
+    <!-- Editors Section -->
+    <h3>Your Editors</h3>
+    {% if editors %}
+        <ul class="list-group mb-4">
+            {% for editor in editors %}
+                <ul class="list-group-item">
+                    {{ editor.user.username }}
+                </ul>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No editors assigned to your newsroom.</p>
+    {% endif %}
+
+    <hr>
+
+    <!-- Journalists Section -->
+    <h3>Your Journalists</h3>
+    {% if journalists %}
+        <ul class="list-group mb-4">
+            {% for journalist in journalists %}
+                <ul class="list-group-item">
+                    {{ journalist.user.username }}
+                </ul>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No journalists assigned to your newsroom.</p>
+    {% endif %}
+
+    <hr>
+
+    <!-- Articles Written by Journalists -->
+    <h3>Articles Written by Your Journalists</h3>
+    {% if journalist_articles %}
+        <ul class="list-group mt-3">
+            {% for article in journalist_articles %}
+                <ul class="list-group-item">
+                    <h4>{{ article.title }}</h4>
+                    <p class="text-muted">
+                        By {{ article.author.username }} • {{ article.created_at|date:"F j, Y" }}
+                    </p>
+
+                    {% if article.reviewed_by %}
+                        <p class="text-muted">
+                            Reviewed by: <strong>{{ article.reviewed_by.username }}</strong>
+                        </p>
+                    {% else %}
+                        <p class="text-muted">Not reviewed yet</p>
+                    {% endif %}
+                    <button class="btn btn-success">
+                        <a href="{% url 'view_article' article.id %}" class="btn btn-primary btn-sm">
+                            View Article
+                        </a>
+                    </button>
+                </ul>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No articles written by your journalists yet.</p>
+    {% endif %}
+
+    <hr>
+
+    <!-- Articles Approved by Editors -->
+    <h3>Articles Approved by Your Editors</h3>
+    {% if approved_articles %}
+        <ul class="list-group mt-3">
+            {% for article in approved_articles %}
+                <ul class="list-group-item">
+                    <h4>{{ article.title }}</h4>
+                    <p class="text-muted">
+                        Approved • {{ article.created_at|date:"F j, Y" }}
+                    </p>
+
+                    {% if article.reviewed_by %}
+                        <p class="text-muted">
+                            Reviewed by: <strong>{{ article.reviewed_by.username }}</strong>
+                        </p>
+                    {% endif %}
+                    
+                    <button class="btn btn-success">
+                        <a href="{% url 'view_article' article.id %}" class="btn btn-success btn-sm">
+                            View Article
+                        </a>
+                    </button>
+                </ul>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No articles approved by your editors yet.</p>
+    {% endif %}
+    <button class="btn btn-success">
+        <a href="{% url 'logout_user' %}" class="btn btn-danger mt-4">Log Out</a>
+    </button>
+
+</div>
+{% endblock %}

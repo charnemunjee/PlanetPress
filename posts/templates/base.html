@@ -1,0 +1,28 @@
+<!-- posts/templates/base.html --> 
+{% load static %} 
+<!DOCTYPE html> 
+<html lang="en"> 
+  <head>
+    <link rel="stylesheet" href="{% static 'styles.css' %}"> 
+    <meta charset="UTF-8" /> 
+    <meta name="viewport" content="width=device-width, 
+initial-scale=1.0" /> 
+  </head> 
+  <body> 
+    <header> 
+      <h1 class="brand-title"> 
+        {% block header %} 
+          PlanetPress
+        {% endblock header %} 
+      </h1> 
+      <!-- Add navigation links or other header content here --> 
+    </header> 
+    <main> 
+      {% block content %} 
+      {% endblock content %} 
+    </main> 
+    <footer> 
+      <p>&copy; 2026 PlanetPress. All rights reserved.</p>
+    </footer> 
+  </body> 
+</html> 

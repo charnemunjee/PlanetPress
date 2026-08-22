@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Your Followed Authors</h2>
+
+<hr>
+
+<h3>Publishers You Follow</h3>
+{% if followed_publishers %}
+    <ul class="list-group mb-4">
+        {% for pub in followed_publishers %}
+            <ul class="list-group-item d-flex justify-content-between align-items-center">
+
+                <span>{{ pub.username }}</span>
+
+                <div class="btn-group">
+                    <a href="{% url 'publisher_articles_reader' pub.id %}" class="btn btn-sm btn-primary">
+                        View Articles
+                    </a>
+                    <a href="{% url 'unfollow_user' pub.id %}" class="btn btn-sm btn-danger">
+                        Unfollow
+                    </a>
+                </div>
+
+            </ul>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p class="text-muted">You are not following any publishers.</p>
+{% endif %}
+
+<hr>
+
+<h3>Journalists You Follow</h3>
+{% if followed_journalists %}
+    <ul class="list-group mb-4">
+        {% for journo in followed_journalists %}
+            <ul class="list-group-item d-flex justify-content-between align-items-center">
+
+                <span>{{ journo.username }}</span>
+
+                <div class="btn-group">
+                    <button class="btn btn-success">
+                        <a href="{% url 'journalist_articles_reader' journo.id %}" class="btn btn-sm btn-primary">
+                            View Articles
+                        </a>
+                    </button>
+                    <button class="btn btn-success">
+                        <a href="{% url 'unfollow_user' journo.id %}" class="btn btn-sm btn-danger">
+                            Unfollow
+                        </a>
+                    </button>    
+                </div>
+
+            </ul>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p class="text-muted">You are not following any journalists.</p>
+{% endif %}
+<button class="btn btn-success">
+    <a href="{% url 'reader_dashboard' %}" class="btn btn-secondary mt-3">
+        Back to Dashboard
+    </a>
+</button>
+    
+
+{% endblock %}

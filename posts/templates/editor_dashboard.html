@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="editor-dashboard">
+    <h1>Editor Dashboard</h1>
+    <p>Welcome, {{ request.user.username }}. What would you like to do?</p>
+
+    <div class="list-group mt-4">
+        <button type="submit" class="btn btn-primary">
+            <a href="{% url 'editor_unreviewed_articles' %}" class="list-group-item list-group-item-action">
+            View All Unreviewed Articles
+            </a>
+        </button>
+        
+        <button type="submit" class="btn btn-primary">
+            <a href="{% url 'editor_reviewed_articles' %}" class="list-group-item list-group-item-action">
+                View All Reviewed Articles
+            </a>
+        </button>
+    </div>
+     <button type="submit" class="btn btn-primary">
+        <a href="{% url 'editor_newsletters' %}" class="btn btn-info mb-3">
+            Newsletters
+        </a>
+     </button>
+     <div>
+        <button type="submit" class="btn btn-primary">
+            <a href="{% url 'logout_user' %}" class="list-group-item list-group-item-action">
+                logout
+            </a>
+        </button>
+     </div>
+        
+</div>
+{% endblock %}

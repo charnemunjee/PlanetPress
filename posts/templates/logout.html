@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% load static %}
+
+
+{% block content %}
+
+<div class="hero">
+    <h1>We're sorry to see you go!!!</h1>
+    <p class="hero-subtitle">
+        Your window to what matters
+    </p>
+
+    <p>click here to log back in </p>
+    
+    <button class=".btn-primary">
+        <a href="{% url 'login_user' %}" class="btn btn-primary cta-btn d-inline-block mx-auto">Log in!</a>
+    </button>
+    
+</div>
+    
+{% endblock content %}

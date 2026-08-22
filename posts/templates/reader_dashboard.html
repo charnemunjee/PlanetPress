@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+
+    <h1>Welcome, {{ request.user.username }}</h1>
+    <p class="text-muted">Here is your personalized Reader Dashboard</p>
+
+    <hr>
+
+    <h3>Your Preferred Article Categories</h3>
+
+    {% if preferred_categories %}
+        <ul class="list-group mt-3">
+            {% for category in preferred_categories %}
+                <ul class="list-group-item">
+                    {{ category.name }}
+                </ul>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>You have not selected any preferences yet.</p>
+    {% endif %}
+
+    <div class="mt-4">
+        <button class="btn btn-success">
+            <a href="{% url 'reader_all_articles' %}" class="btn btn-primary">
+                View Articles Based on Your Preferences
+            </a>
+        </button>
+
+        <button class="btn btn-success">
+            <a href="{% url 'update_reader_preferences' %}" class="btn btn-secondary ms-2">
+                Update Preferences
+            </a>
+        </button>
+        
+    </div>
+    <div class="mt-4">
+        <button class="btn btn-success">
+             <a href="{% url 'reader_newsletters' %}" class="btn btn-info">
+                View available Newsletters
+            </a>
+        </button>
+    </div>
+
+    <button class="btn btn-success">
+        <a href="{% url 'following_list' %}" class="btn btn-secondary">
+            View followed Journalists and Publishers
+        </a>
+    </button>
+
+    <div>
+        <button class="btn btn-success">
+            <a href="{% url 'logout_user' %}" class="btn btn-secondary">
+                log out
+            </a>
+        </button>
+    </div>
+</div>
+{% endblock %}

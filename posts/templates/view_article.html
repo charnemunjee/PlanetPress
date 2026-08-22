@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+
+    <h1>{{ article.title }}</h1>
+
+    <p class="text-muted">
+        By {{ article.author.username }} • {{ article.created_at|date:"F j, Y" }}
+    </p>
+
+    <hr>
+
+    <p>{{ article.content|linebreaks }}</p>
+    
+    
+        <button class="btn btn-success mt-4">
+            {% if user.profile.role == "publisher" %}
+                <a href="{% url 'publisher_dashboard' %}" class="btn btn-secondary">
+                    Back to Dashboard
+                </a>
+            {% elif user.profile.role == "journalist" or user.profile.role == "independent" %}
+                <a href="{% url 'journalist_dashboard' %}" class="btn btn-secondary">
+                    Back to Dashboard
+                </a>
+            {% elif user.profile.role == "editor" %}
+                <a href="{% url 'editor_dashboard' %}" class="btn btn-secondary">
+                    Back to Dashboard
+                </a>
+            {% elif user.profile.role == "reader" %}
+                <a href="{% url 'reader_dashboard' %}" class="btn btn-secondary">
+                    Back to Dashboard
+                </a>
+            {% endif %}
+        </button>
+</div>
+{% endblock %}

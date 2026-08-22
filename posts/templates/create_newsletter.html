@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+
+    <h2>Create Newsletter</h2>
+
+    <form method="POST">
+        {% csrf_token %}
+
+        <div class="mb-3">
+            <label class="form-label">Title</label>
+            <input type="text" name="title" class="form-control" required>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Description</label>
+            <textarea name="description" class="form-control" rows="4"></textarea>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Select Articles</label>
+            <select name="articles" class="form-select" multiple size="8">
+                {% for article in articles %}
+                    <option value="{{ article.id }}">{{ article.title }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <button class="btn btn-success">Create Newsletter</button>
+    </form>
+    <button class="btn btn-success mt-4">
+        <a href="{% url 'journalist_dashboard' %}" class="btn btn-secondary">
+            Back to Dashboard
+        </a>
+    </button>
+
+</div>
+{% endblock %}

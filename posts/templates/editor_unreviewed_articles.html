@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+
+    <h2>Unreviewed Articles</h2>
+    <p class="text-muted">Articles submitted by journalists and waiting for your review.</p>
+
+    {% if articles %}
+        <ul class="list-group mt-4">
+            {% for article in articles %}
+
+                    <h4>{{ article.title }}</h4>
+
+                    <p class="text-muted">
+                        By {{ article.author.username }} • Submitted on {{ article.created_at|date:"F j, Y" }}
+                    </p>
+                    <button class="btn btn-success">
+                        <a href="{% url 'view_article' article.id %}" class="btn btn-secondary btn-sm">
+                            Read Article
+                        </a>
+                    </button>
+                    
+                    <button class="btn btn-success mt-4">
+                        <a href="{% url 'review_article' article.id %}" class="btn btn-primary btn-sm">
+                            Review Article
+                        </a>
+                    </button>
+
+                    <button class="btn btn-success mt-4">
+                        <a href="{% url 'edit_article' article.id %}" class="btn btn-primary btn-sm">
+                            Edit Article
+                        </a>
+                    </button>
+
+                    <button class="btn btn-success mt-4">
+                        <a href="{% url 'delete_article' article.id %}" class="btn btn-primary btn-sm">
+                            Delete Article
+                        </a>
+                    </button>
+                    
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No articles are waiting for review.</p>
+    {% endif %}
+
+    <button onclick="history.back()">Go Back</button>
+
+    <button class="btn btn-success mt-4">
+        <a href="{% url 'editor_dashboard' %}" class="btn btn-secondary">
+            Go to Dashboard
+        </a>
+    </button>
+</div>
+{% endblock %}
