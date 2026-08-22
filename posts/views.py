@@ -144,6 +144,24 @@ def register_user(request):
     
 
 def logout_user(request):
+    """
+        Log out the currently authenticated user and display the logout confirmation page.
+    
+        This view terminates the user's session using Django's built‑in `logout()`
+        function, clearing all authentication‑related data. After logging the user out,
+        it renders a simple confirmation page to inform them that the process was
+        successful.
+    
+        Behavior:
+            - If the user is authenticated, their session is ended.
+            - If the user is not authenticated, the view still renders the logout page
+              without raising an error.
+            - No redirects are performed; the logout template is rendered directly.
+    
+        Returns:
+            HttpResponse:
+                The rendered "logout.html" template confirming the logout action.
+    """
 
     logout(request)
     return render(request, "logout.html")
