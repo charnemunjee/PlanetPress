@@ -238,7 +238,15 @@ def login_user(request):
 
 
 def forgot_password(request):
+    """
+    Displays the password reset request form.
 
+    Purpose:
+        Allows users to enter their email to receive a reset link.
+
+    Returns:
+        HttpResponse: The forgot password template.
+    """
     return render(request, 'forgot_password.html')
 
 
