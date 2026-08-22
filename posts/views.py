@@ -38,6 +38,46 @@ def welcome(request):
 
     
 def register_user(request):
+    """
+        Handle user registration for the PlanetPress platform, including role
+        selection and optional publisher association.
+    
+        This view supports both GET and POST requests:
+    
+        GET:
+            - Renders the registration form.
+            - Provides a list of available publishers for journalist/editor roles.
+    
+        POST:
+            - Validates submitted registration data, including:
+                * Unique username
+                * Unique email address
+                * Matching password and confirmation
+                * Required role selection
+                * Required publisher selection for journalists and editors
+    
+            - Determines whether the new user should be associated with a publisher.
+              Only users with the roles "journalist" or "editor" may select a
+              publisher; all other roles ignore this field.
+    
+            - Creates a new Django User instance using the provided credentials.
+    
+            - Creates a corresponding UserProfile with the selected role and
+              optional publisher relationship.
+    
+            - Redirects the user to the login page upon successful registration.
+    
+        Context Variables (for template rendering):
+            publishers:
+                A queryset of all users with the "publisher" role, used to populate
+                the publisher selection dropdown for journalist/editor roles.
+    
+        Returns:
+            HttpResponse:
+                - On GET: the registration form.
+                - On POST with errors: the form with an error message.
+                - On successful POST: redirect to the login page.
+        """
 
     publishers = UserProfile.objects.filter(role="publisher")
 
