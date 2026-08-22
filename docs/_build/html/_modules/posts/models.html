@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>posts.models &#8212; planetpress 0.1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../../_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="../../_static/alabaster.css?v=27fed22d" />
+    <script src="../../_static/documentation_options.js?v=01f34227"></script>
+    <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for posts.models</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">django.db</span><span class="w"> </span><span class="kn">import</span> <span class="n">models</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.contrib.auth.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">User</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.conf</span><span class="w"> </span><span class="kn">import</span> <span class="n">settings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">timezone</span>
+
+
+<span class="c1"># Create your models here.</span>
+<div class="viewcode-block" id="ArticleCategory">
+<a class="viewcode-back" href="../../api.html#posts.models.ArticleCategory">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ArticleCategory</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Represents a topic or classification under which articles are grouped.</span>
+
+<span class="sd">    Categories help organize content across the PlanetPress platform and allow:</span>
+<span class="sd">    - Journalists to assign a topic to their articles.</span>
+<span class="sd">    - Readers to subscribe to topics they are interested in.</span>
+<span class="sd">    - Editors to generate topic‑based newsletters.</span>
+<span class="sd">    - API clients to filter articles by category.</span>
+
+<span class="sd">    Fields:</span>
+<span class="sd">        name (CharField):</span>
+<span class="sd">            The unique name of the category (e.g., "Technology", "Politics").</span>
+<span class="sd">            Maximum length is 50 characters.</span>
+<span class="sd">    """</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">unique</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span></div>
+
+    
+
+<div class="viewcode-block" id="Article">
+<a class="viewcode-back" href="../../api.html#posts.models.Article">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Article</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Represents a news article created by a journalist or independent writer.</span>
+
+<span class="sd">    Articles may optionally belong to a publisher and always belong to a category.</span>
+<span class="sd">    Editors can review, approve, or reject articles, and may leave feedback.</span>
+
+<span class="sd">    Fields:</span>
+<span class="sd">        title (CharField):</span>
+<span class="sd">            The headline or title of the article (max 255 characters).</span>
+
+<span class="sd">        content (TextField):</span>
+<span class="sd">            The full body text of the article.</span>
+
+<span class="sd">        author (ForeignKey to User):</span>
+<span class="sd">            The journalist or independent writer who created the article.</span>
+
+<span class="sd">        publisher (ForeignKey to User, optional):</span>
+<span class="sd">            The publisher responsible for the article.</span>
+<span class="sd">            Null for independent journalists.</span>
+<span class="sd">            Uses SET_NULL to preserve articles if the publisher account is removed.</span>
+
+<span class="sd">        category (ForeignKey to ArticleCategory):</span>
+<span class="sd">            The topic or classification the article belongs to.</span>
+
+<span class="sd">        status (CharField):</span>
+<span class="sd">            The workflow state of the article.</span>
+<span class="sd">            Common values include:</span>
+<span class="sd">                - "draft"</span>
+<span class="sd">                - "submitted"</span>
+<span class="sd">                - "approved"</span>
+<span class="sd">                - "rejected"</span>
+<span class="sd">            Defaults to "draft".</span>
+
+<span class="sd">        editor_feedback (TextField, optional):</span>
+<span class="sd">            Comments or revision notes left by an editor during review.</span>
+
+<span class="sd">        created_at (DateTimeField):</span>
+<span class="sd">            Timestamp automatically set when the article is first created.</span>
+
+<span class="sd">        updated_at (DateTimeField):</span>
+<span class="sd">            Timestamp automatically updated whenever the article is modified.</span>
+<span class="sd">    """</span>
+    <span class="n">title</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">255</span><span class="p">)</span>
+    <span class="n">content</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">TextField</span><span class="p">()</span>
+
+    <span class="n">author</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">User</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">)</span>
+
+    <span class="c1"># Article belongs to either a publisher or an independent journalist</span>
+    <span class="n">publisher</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
+        <span class="n">User</span><span class="p">,</span>
+        <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">SET_NULL</span><span class="p">,</span>
+        <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">related_name</span><span class="o">=</span><span class="s2">"publisher_articles"</span>
+    <span class="p">)</span>
+
+    <span class="n">reviewed_by</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
+    <span class="n">User</span><span class="p">,</span>
+    <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">SET_NULL</span><span class="p">,</span>
+    <span class="n">related_name</span><span class="o">=</span><span class="s2">"reviewed_articles"</span>
+<span class="p">)</span>
+
+    <span class="n">category</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">ArticleCategory</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">SET_NULL</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">status</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">"draft"</span><span class="p">)</span>
+    <span class="n">editor_feedback</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">TextField</span><span class="p">(</span><span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">created_at</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DateTimeField</span><span class="p">(</span><span class="n">auto_now_add</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">updated_at</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DateTimeField</span><span class="p">(</span><span class="n">auto_now</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="UserProfile">
+<a class="viewcode-back" href="../../api.html#posts.models.UserProfile">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">UserProfile</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Extends the Django User model with role-based permissions, publisher</span>
+<span class="sd">    relationships, and subscription functionality for the PlanetPress platform.</span>
+
+<span class="sd">    This model defines all user roles in the system—reader, independent</span>
+<span class="sd">    journalist, journalist, editor, and publisher—and automatically assigns</span>
+<span class="sd">    capabilities based on the selected role. It also manages relationships</span>
+<span class="sd">    between publishers and their teams, as well as reader subscriptions to</span>
+<span class="sd">    journalists, publishers, and content categories.</span>
+
+<span class="sd">    Roles:</span>
+<span class="sd">        - reader: Can read articles and subscribe to journalists/publishers.</span>
+<span class="sd">        - independent: Can publish independently without belonging to a publisher.</span>
+<span class="sd">        - journalist: Belongs to a publisher and can publish/request review.</span>
+<span class="sd">        - editor: Belongs to a publisher and can review, approve, and manage content.</span>
+<span class="sd">        - publisher: Owns a publishing organization and manages journalists/editors.</span>
+
+<span class="sd">    Fields:</span>
+<span class="sd">        user (OneToOneField):</span>
+<span class="sd">            The associated Django User account.</span>
+
+<span class="sd">        role (CharField):</span>
+<span class="sd">            The user's role within the platform. Determines permissions and behavior.</span>
+
+<span class="sd">        publisher (ForeignKey to User, optional):</span>
+<span class="sd">            The publisher this user belongs to (for journalists/editors).</span>
+<span class="sd">            Independent journalists and publishers have this set to None.</span>
+
+<span class="sd">        subscribed_publishers (ManyToManyField to User):</span>
+<span class="sd">            Publishers that a reader follows. Used for personalized article feeds</span>
+<span class="sd">            and newsletter delivery.</span>
+
+<span class="sd">        subscribed_journalists (ManyToManyField to User):</span>
+<span class="sd">            Journalists that a reader follows. Used for personalized content feeds.</span>
+
+<span class="sd">        can_read (BooleanField):</span>
+<span class="sd">            Whether the user can read articles. Always True.</span>
+
+<span class="sd">        can_publish (BooleanField):</span>
+<span class="sd">            Whether the user can publish articles (journalists, independents, publishers).</span>
+
+<span class="sd">        can_request_review (BooleanField):</span>
+<span class="sd">            Whether the user can submit articles for editorial review.</span>
+
+<span class="sd">        can_review (BooleanField):</span>
+<span class="sd">            Whether the user can review and approve articles (editors only).</span>
+
+<span class="sd">        can_update (BooleanField):</span>
+<span class="sd">            Whether the user can update articles (journalists, editors, publishers).</span>
+
+<span class="sd">        can_delete (BooleanField):</span>
+<span class="sd">            Whether the user can delete articles (journalists, editors, publishers).</span>
+
+<span class="sd">        preferred_categories (ManyToManyField to ArticleCategory):</span>
+<span class="sd">            Categories a reader is interested in. Used for topic‑based newsletters</span>
+<span class="sd">            and personalized recommendations.</span>
+
+<span class="sd">    save():</span>
+<span class="sd">        Overrides the default save method to automatically assign permissions</span>
+<span class="sd">        and publisher relationships based on the user's role. Ensures consistent</span>
+<span class="sd">        behavior across the platform and prevents invalid role configurations.</span>
+
+<span class="sd">    __str__():</span>
+<span class="sd">        Returns a readable representation of the profile in the format:</span>
+<span class="sd">        "&lt;username&gt; (&lt;role&gt;)".</span>
+<span class="sd">    """</span>
+    <span class="n">ROLE_CHOICES</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">(</span><span class="s2">"reader"</span><span class="p">,</span> <span class="s2">"Reader"</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">"independent"</span><span class="p">,</span> <span class="s2">"Independent Journalist"</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">"journalist"</span><span class="p">,</span> <span class="s2">"Journalist"</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">"editor"</span><span class="p">,</span> <span class="s2">"Editor"</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">"publisher"</span><span class="p">,</span> <span class="s2">"Publisher"</span><span class="p">),</span>
+    <span class="p">]</span>
+
+    <span class="n">user</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">OneToOneField</span><span class="p">(</span>
+        <span class="n">settings</span><span class="o">.</span><span class="n">AUTH_USER_MODEL</span><span class="p">,</span>
+        <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">,</span>
+        <span class="n">related_name</span><span class="o">=</span><span class="s2">"profile"</span>
+    <span class="p">)</span>
+    <span class="n">role</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="n">ROLE_CHOICES</span><span class="p">)</span>
+
+    <span class="c1"># Journalists and editors belong to a publisher</span>
+    <span class="n">publisher</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
+        <span class="n">settings</span><span class="o">.</span><span class="n">AUTH_USER_MODEL</span><span class="p">,</span>
+        <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">SET_NULL</span><span class="p">,</span>
+        <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">related_name</span><span class="o">=</span><span class="s2">"publisher_team"</span>
+    <span class="p">)</span>
+
+    <span class="c1"># NEW: Reader subscriptions</span>
+    <span class="n">subscribed_journalists</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ManyToManyField</span><span class="p">(</span>
+        <span class="n">User</span><span class="p">,</span>
+        <span class="n">related_name</span><span class="o">=</span><span class="s2">"journalist_subscribers"</span><span class="p">,</span>
+        <span class="n">blank</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span>
+    
+    <span class="n">subscribed_publishers</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ManyToManyField</span><span class="p">(</span>
+        <span class="n">User</span><span class="p">,</span>
+        <span class="n">related_name</span><span class="o">=</span><span class="s2">"publisher_subscribers"</span><span class="p">,</span>
+        <span class="n">blank</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span>
+
+
+    <span class="c1"># Capability flags</span>
+    <span class="n">can_read</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">BooleanField</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">can_publish</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">BooleanField</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">can_request_review</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">BooleanField</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">can_review</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">BooleanField</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">can_update</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">BooleanField</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">can_delete</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">BooleanField</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="c1"># Reader-selected categories</span>
+    <span class="n">preferred_categories</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ManyToManyField</span><span class="p">(</span>
+        <span class="n">ArticleCategory</span><span class="p">,</span>
+        <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">related_name</span><span class="o">=</span><span class="s2">"readers"</span>
+    <span class="p">)</span>
+
+<div class="viewcode-block" id="UserProfile.save">
+<a class="viewcode-back" href="../../api.html#posts.models.UserProfile.save">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="c1"># Readers</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">role</span> <span class="o">==</span> <span class="s2">"reader"</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">can_publish</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">can_request_review</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">can_review</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">publisher</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="c1"># Independent journalists</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">role</span> <span class="o">==</span> <span class="s2">"independent"</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">can_publish</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">can_request_review</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">can_review</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">can_update</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">can_delete</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">publisher</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="c1"># Journalists belonging to a publisher</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">role</span> <span class="o">==</span> <span class="s2">"journalist"</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">can_publish</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">can_request_review</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">can_review</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">can_update</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">can_delete</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="c1"># Editors belonging to a publisher</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">role</span> <span class="o">==</span> <span class="s2">"editor"</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">can_publish</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">can_request_review</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">can_review</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">can_update</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">can_delete</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="c1"># Publishers</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">role</span> <span class="o">==</span> <span class="s2">"publisher"</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">can_publish</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">can_request_review</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">can_review</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">can_update</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">can_delete</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">publisher</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">username</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">role</span><span class="si">}</span><span class="s2">)"</span></div>
+
+
+
+<div class="viewcode-block" id="ResetToken">
+<a class="viewcode-back" href="../../api.html#posts.models.ResetToken">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ResetToken</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Stores password reset tokens for secure account recovery.</span>
+
+<span class="sd">    Fields:</span>
+<span class="sd">        user (ForeignKey):</span>
+<span class="sd">            The user requesting a password reset.</span>
+<span class="sd">        token (CharField):</span>
+<span class="sd">            A unique, securely generated token used to validate the reset request.</span>
+<span class="sd">        expiry_date (DateTimeField):</span>
+<span class="sd">            The timestamp indicating when the token becomes invalid.</span>
+<span class="sd">        used (BooleanField):</span>
+<span class="sd">            Marks whether the token has already been consumed.</span>
+
+<span class="sd">    Purpose:</span>
+<span class="sd">        Ensures secure, time‑limited password reset functionality by tracking</span>
+<span class="sd">        token usage and expiration.</span>
+
+<span class="sd">    Methods:</span>
+<span class="sd">        None custom, but Django provides default model behavior.</span>
+<span class="sd">    """</span>
+    <span class="n">user</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">settings</span><span class="o">.</span><span class="n">AUTH_USER_MODEL</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">)</span>
+    <span class="n">token</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">500</span><span class="p">)</span>
+    <span class="n">expiry_date</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DateTimeField</span><span class="p">()</span>
+    <span class="n">used</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">BooleanField</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">"Token for </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">username</span><span class="si">}</span><span class="s2">"</span></div>
+
+
+
+<div class="viewcode-block" id="Newsletter">
+<a class="viewcode-back" href="../../api.html#posts.models.Newsletter">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Newsletter</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Represents a curated collection of articles created within the PlanetPress</span>
+<span class="sd">    platform for distribution to readers.</span>
+
+<span class="sd">    A newsletter may be authored by an editor, journalist, or publisher and can</span>
+<span class="sd">    contain any number of articles. Newsletters are commonly used for topic‑based</span>
+<span class="sd">    digests, editorial roundups, or automated content delivery to subscribed</span>
+<span class="sd">    readers. They may also be sent via email or exposed through the REST API.</span>
+
+<span class="sd">    Fields:</span>
+<span class="sd">        title (CharField):</span>
+<span class="sd">            The title or headline of the newsletter. Maximum length is 255</span>
+<span class="sd">            characters.</span>
+
+<span class="sd">        description (TextField):</span>
+<span class="sd">            An optional summary or introduction describing the theme or purpose</span>
+<span class="sd">            of the newsletter.</span>
+
+<span class="sd">        author (ForeignKey to User):</span>
+<span class="sd">            The user who created the newsletter. If the user is deleted, all</span>
+<span class="sd">            newsletters they authored are also removed. This field may be null</span>
+<span class="sd">            for system‑generated newsletters.</span>
+
+<span class="sd">        articles (ManyToManyField to Article):</span>
+<span class="sd">            The set of articles included in the newsletter. This relationship</span>
+<span class="sd">            allows newsletters to contain zero or more articles.</span>
+
+<span class="sd">        created_at (DateTimeField):</span>
+<span class="sd">            Timestamp automatically set when the newsletter is created.</span>
+
+<span class="sd">    __str__():</span>
+<span class="sd">        Returns the newsletter's title for readable display in admin interfaces,</span>
+<span class="sd">        logs, and debugging contexts.</span>
+<span class="sd">    """</span>
+
+    <span class="n">title</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">255</span><span class="p">)</span>
+    <span class="n">description</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">TextField</span><span class="p">(</span><span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">author</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
+    <span class="n">settings</span><span class="o">.</span><span class="n">AUTH_USER_MODEL</span><span class="p">,</span>
+    <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">,</span>
+    <span class="n">related_name</span><span class="o">=</span><span class="s2">"newsletters"</span><span class="p">,</span>
+    <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">blank</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+
+    <span class="n">articles</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ManyToManyField</span><span class="p">(</span>
+        <span class="n">Article</span><span class="p">,</span>
+        <span class="n">related_name</span><span class="o">=</span><span class="s2">"newsletters"</span><span class="p">,</span>
+        <span class="n">blank</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+
+    <span class="n">created_at</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DateTimeField</span><span class="p">(</span><span class="n">auto_now_add</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">title</span></div>
+
+
+
+<div class="viewcode-block" id="Notification">
+<a class="viewcode-back" href="../../api.html#posts.models.Notification">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Notification</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Represents a system‑generated alert or message delivered to a specific user</span>
+<span class="sd">    within the PlanetPress platform.</span>
+
+<span class="sd">    Notifications are used to inform users about important events such as:</span>
+<span class="sd">    - New newsletters from subscribed publishers or journalists</span>
+<span class="sd">    - Article approvals, rejections, or editorial feedback</span>
+<span class="sd">    - Updates from followed journalists or publishers</span>
+<span class="sd">    - System messages or platform‑level announcements</span>
+
+<span class="sd">    Each notification is tied to a single user and includes a message body,</span>
+<span class="sd">    a read/unread state, and a timestamp indicating when it was created.</span>
+<span class="sd">    Notifications are typically displayed in a user's dashboard and may be</span>
+<span class="sd">    marked as read once viewed.</span>
+
+<span class="sd">    Fields:</span>
+<span class="sd">        user (ForeignKey to User):</span>
+<span class="sd">            The user who receives the notification. If the user is deleted,</span>
+<span class="sd">            all associated notifications are removed.</span>
+
+<span class="sd">        message (TextField):</span>
+<span class="sd">            The content of the notification. This may include plain text or</span>
+<span class="sd">            dynamically generated system messages.</span>
+
+<span class="sd">        is_read (BooleanField):</span>
+<span class="sd">            Indicates whether the user has viewed or acknowledged the</span>
+<span class="sd">            notification. Defaults to False.</span>
+
+<span class="sd">        created_at (DateTimeField):</span>
+<span class="sd">            Timestamp automatically set when the notification is created.</span>
+<span class="sd">            Useful for sorting notifications chronologically.</span>
+<span class="sd">    """</span>
+    <span class="n">user</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">settings</span><span class="o">.</span><span class="n">AUTH_USER_MODEL</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">)</span>
+    <span class="n">message</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">TextField</span><span class="p">()</span>
+    <span class="n">is_read</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">BooleanField</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">created_at</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DateTimeField</span><span class="p">(</span><span class="n">auto_now_add</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+
+
+
+
+
+
+
+
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">planetpress</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../getting_started.html">Getting Started</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 9.1.0</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>
